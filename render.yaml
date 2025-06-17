@@ -7,3 +7,6 @@ services:
     startCommand: dotnet out/GeneradorListas.dll.dll
     branch: main
     rootDir: .
+    envVars:
+      - key: ASPNETCORE_URLS
+        value: http://0.0.0.0:10000
