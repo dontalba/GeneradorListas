@@ -1,0 +1,56 @@
+﻿@page
+@model GeneradorListas.Pages.IndexModel
+
+<p>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Tarea[0].Nombre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tarea[0].Usuario)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tarea[0].Completada)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tarea[0].Urgente)
+            </th>
+            <th></th>
+        </tr>
+        <a asp-page="Create"><i class="bi bi-plus">  </i></a>
+    </thead>
+    <tbody>
+      
+    @foreach (var item in Model.Tarea) {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Nombre)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Usuario)
+                </td>
+                <td >
+                    @Html.DisplayFor(modelItem => item.Completada)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Urgente)
+                </td>
+                <td>
+                    @* <form asp-controller="Tareas" asp-action="Completar" method="post" style="display:inline;"> *@
+                    <form method="post" asp-page-handler="Completar" asp-route-id="@item.Id" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" style="background:none;border:none;color:blue;text-decoration:underline;cursor:pointer;">
+                            Completar
+                        </button>
+                    </form>
+                    <a asp-page="./Edit" asp-route-id="@item.Id">Edita</a> |
+                    <a asp-page="./Details" asp-route-id="@item.Id">Ver detalle</a> |
+                    <a asp-page="./Delete" asp-route-id="@item.Id">Borrar</a>
+                </td>
+            </tr>
+    }
+    </tbody>
+</table>

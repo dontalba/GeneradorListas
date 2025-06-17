@@ -1,0 +1,155 @@
+﻿@page
+@model IndexModel
+@{
+}
+
+<script src="/js/GridComponent/GridComponentVue.js"></script>
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <grid-component :results="resultados"
+                    :total-count="totalCount"
+                    :page-size="pageSize"
+                    @@fetch-data="CargarEjecuciones"
+                    @@page-size-changed="CargarEjecuciones"
+                    @@update-total-pages="totalPages = $event"
+                    :mostrar-Poliza-General="false"
+                    :mostrar-Poliza-Economico="false"
+                    :mostrar-Poliza-Estado="false"
+                    :mostrar-Recibo-General="false"
+                    :mostrar-Recibo-Economico="false"
+                    :mostrar-Recibo-Estado="false"
+                    :mostrar-Siniestro-General="false"
+                    :mostrar-Siniestro-Economico="false"
+                    :mostrar-Estado-Siniestro="false"
+                    :mostrar-Ejecucion-Fichero="true">
+    </grid-component>
+</div>
+
+<script>
+
+
+    // Crear la instancia de la aplicación de Vue
+    const app = Vue.createApp(
+        {
+            computed: {
+            },
+            components: {
+                GridComponent
+            },
+            data() {
+                return {
+                    totalCount: 0,
+                    pageSize: 10,
+                    isLoading: false,
+                    tiposProceso: [],       // Lista de categorías para el combo
+                    tipoProcesoSelected: null, // Valor seleccionado en el combo
+                    queryMediador: '',// Texto ingresado por el usuario
+                    suggestions: [], // Sugerencias obtenidas del servidor
+                    resultados: [],
+                    formData: {
+                        fechaInicio: new Date(new Date().getTime() - (24 * 60 * 60 * 1000)).toLocaleDateString('en-CA'),
+                        fechaFin: new Date().toLocaleDateString('en-CA'),
+                        queryMediador: '',
+                        tipoProceso: ''
+                    },
+                    tooltips: {
+                        fechaInicio: false,
+                        fechaFin: false,
+                        tipoProceso: false
+                    },
+                    errors: {
+                        fechaInicio: false,
+                        fechaFin: false,
+                        mediador: false,
+                    }
+                };
+            },
+            methods: {
+                fetchTipoProceso() {
+                    axios.get('/api/consultadatos/GetTipoProceso', { params: { id_tipo_dato: this.tipoDatoSelected } })
+                        .then(response => {
+                            this.tiposProceso = response.data;
+                        })
+                        .catch(error => {
+                            console.error("Error al obtener los tipos de proceso:", error);
+                        });
+                },
+                validateForm() {
+                    this.errors.fechaInicio = !this.formData.fechaInicio;
+                    this.errors.fechaFin = !this.formData.fechaFin;
+                    this.errors.mediador = !this.queryMediador;
+                    // El formulario es válido si no hay errores
+                    return !this.errors.fechaInicio && !this.errors.fechaFin && !this.errors.mediador
+                },
+                // Método que escucha el clic en el tab
+                CargarEjecuciones(page = 1, pageSize = 10, tip_grid =1) {
+                    if (this.validateForm()) {
+                        if (page < 1 && page > this.totalPages) return;
+                        this.isLoading = true;
+                        axios.get('/api/resultados/GetResultados', {
+                            params: {
+                                fecini: new Date(this.formData.fechaInicio).toLocaleDateString('en-CA'),
+                                fecfin: new Date(this.formData.fechaFin).toLocaleDateString('en-CA'),
+                                mediador: this.queryMediador,
+                                page: page,
+                                page_size: pageSize,
+                                proceso: this.tipoProcesoSelected,
+                            }
+                        })
+                            .then(response => {
+                                this.ejecuciones = [...response.data.data];
+                                this.totalCount = response.data.totalCount;
+                                this.totalPages = Math.ceil(this.totalCount / pageSize) || 1;
+                            })
+                            .catch(error => {
+                                console.error("Error al cargar los datos:", error);
+                            })
+                            .finally(() => {
+                                this.isLoading = false;
+                            });
+
+                    }
+                },
+                fetchSuggestions() {
+                    if (this.queryMediador.length < 2) {
+                        this.suggestions = [];
+                        return;
+                    }
+
+                    // Llama al controlador de ASP.NET Core
+                    axios
+                        .get(`/api/consultadatos/suggestions`, { params: { query: this.queryMediador } })
+                        .then((response) => {
+                            this.suggestions = response.data;
+                        })
+                        .catch((error) => {
+                            console.error("Error al obtener sugerencias:", error);
+                        });
+                },
+                selectSuggestion(suggestion) {
+                    this.queryMediador = suggestion;
+                    this.suggestions = []; // Limpiar las sugerencias cuando se selecciona una
+                },
+                CargarDatosCache() {
+                    axios.get('/api/consultadatos/InitializeData')
+                        .then(response => {
+                            this.dataList = response.data;
+                        })
+                        .catch(error => {
+                            console.error('Error al cargar datos:', error);
+                        });
+                }
+            },
+
+            created() {
+                this.CargarDatosCache();
+            },
+            mounted() {
+                this.fetchTipoProceso();
+            }
+        });
+
+
+    // Montar la aplicación en el div con id "app"
+    app.mount('#app');
+</script>

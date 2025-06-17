@@ -1,0 +1,39 @@
+﻿@page
+@model GeneradorListas.Pages.EditModel
+
+<h4>Tarea</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Tarea.Id" />
+            <div class="form-group">
+                <label asp-for="Tarea.Nombre" class="control-label"></label>
+                <input asp-for="Tarea.Nombre" class="form-control" />
+                <span asp-validation-for="Tarea.Nombre" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Tarea.Usuario" class="control-label"></label>
+                <input asp-for="Tarea.Usuario" class="form-control" />
+                <span asp-validation-for="Tarea.Usuario" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Tarea.Completada" /> @Html.DisplayNameFor(model => model.Tarea.Completada)
+                </label>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-page="./Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
