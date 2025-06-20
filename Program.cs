@@ -7,6 +7,9 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // Add services to the container.
 builder.Services.AddRazorPages();
 
+// Configura Kestrel para escuchar en el puerto 10000 (Render lo requiere)
+builder.WebHost.UseUrls("http://0.0.0.0:10000");
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -25,5 +28,8 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapRazorPages();
+app.MapGet("/", () => "¡Hola Render!");
 
-app.Run("http://0.0.0.0:10000");
+
+// Ejecuta la app
+app.Run();
