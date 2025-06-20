@@ -3,12 +3,12 @@ services:
     name: GeneradorListas
     env: dotnet
     plan: free
-    buildCommand: dotnet publish -c Release -o out
-    startCommand: dotnet out/GeneradorListas.dll
     branch: main
     rootDir: .
+    buildCommand: dotnet publish -c Release -o out
+    startCommand: dotnet out/GeneradorListas.dll
     envVars:
       - key: ASPNETCORE_URLS
         value: http://0.0.0.0:10000
-   ports:
+    ports:
       - 10000
